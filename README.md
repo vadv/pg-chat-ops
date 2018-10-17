@@ -44,7 +44,7 @@ tg_bot_update:callback_data() -- данные который отослал call
 tg_bot_update:callback_message_id() -- message id запроса который и породил callback
 ```
 
-## cache
+## cache (для обмена между плагинами и состоянием)
 
 ```
 c, err = cache.load(filename)
