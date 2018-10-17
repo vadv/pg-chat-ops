@@ -51,4 +51,5 @@ c, err = cache.load(filename)
 
 c:set(key, value, <ttl>)
 c:get(key) -- nil/value(string)
+c:list() -- { k1="v1", k2="v2"}
 ```
