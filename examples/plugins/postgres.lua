@@ -64,14 +64,31 @@ function get_pid(query_id)
   return nil
 end
 
-function kill_pid(pid)
+function cancel_pid(pid)
   local rows, err = main_db:query("select pg_catalog.pg_cancel_backend("..pid..");")
   check_err(err)
-  if rows[1][1] == true then return end
+  return rows[1][1] == true
+end
+
+function terminate_pid(pid)
   local rows, err = main_db:query("select pg_catalog.pg_terminate_backend("..pid..");")
   check_err(err)
-  if rows[1][1] == true then return end
-  return "не смог убить pid: "..pid
+  return rows[1][1] == true
+end
+
+function kill_query_id(query_id)
+  local pid = get_pid(query_id)
+  if (pid == nil) then return "QueryID не найден" end
+
+  cancel_pid(pid)
+  time.sleep(1)
+  if (get_pid(query_id) == nil) then return nil end
+
+  terminate_pid(pid)
+  time.sleep(1)
+  if (get_pid(query_id) == nil) then return nil end
+
+  return "не получилось убить запрос при помощи cancel/terminate backend"
 end
 
 function check_long_queries()
@@ -123,19 +140,13 @@ end
 function run_killer()
   for query_id, op in pairs(killdb:list()) do
     if op == "kill" then
-      local pid = get_pid(query_id)
-      if pid then
-        local err = kill_pid(pid)
-        if err then
-          send_messages_to_all_chats("*ОШИБКА* QueryID: `"..query_id.."`: "..err.."\n#"..query_id)
-        else
-          send_messages_to_all_chats("*УСПЕХ* QueryID: `"..query_id.."`: завершен\n#"..query_id)
-          killdb:set(query_id, "miss")
-        end
+      local err = kill_query_id(query_id)
+      if (err == nil) then
+        send_messages_to_all_chats("*УСПЕХ* QueryID: `"..query_id.."`: завершен\n#"..query_id)
       else
-        send_messages_to_all_chats("*ОШИБКА* QueryID: `"..query_id.."`: не найден\n#"..query_id)
-        killdb:set(query_id, "miss")
+        send_messages_to_all_chats("*ОШИБКА* QueryID: `"..query_id.."`: "..err.."\n#"..query_id)
       end
+      killdb:set(query_id, "miss")
     end
   end
 end
