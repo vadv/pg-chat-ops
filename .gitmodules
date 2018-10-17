@@ -1,0 +1,6 @@
+[submodule "src/vendor/github.com/lib/pq"]
+	path = src/vendor/github.com/lib/pq
+	url = https://github.com/lib/pq.git
+[submodule "src/vendor/github.com/yuin/gopher-lua"]
+	path = src/vendor/github.com/yuin/gopher-lua
+	url = https://github.com/yuin/gopher-lua.git

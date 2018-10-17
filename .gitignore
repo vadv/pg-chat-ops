@@ -1,0 +1,8 @@
+bin
+rpm-tmp.*
+rpm/BUILD/*
+rpm/SOURCES/*
+pkg/
+.idea
+testdb.json
+spamdb.json
